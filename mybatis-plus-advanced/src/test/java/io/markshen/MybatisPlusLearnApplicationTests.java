@@ -1,4 +1,4 @@
-package io.markshen.mybatispluslearn;
+package io.markshen;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

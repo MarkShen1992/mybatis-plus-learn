@@ -1,4 +1,4 @@
-package io.markshen.mybatispluslearn;
+package io.markshen;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
