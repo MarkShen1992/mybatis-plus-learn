@@ -1,6 +1,7 @@
 package io.markshen.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.markshen.entity.User;
 import org.junit.jupiter.api.Test;
@@ -210,4 +211,43 @@ public class UserDAOTest {
     }
 
     // =============== 条件构造器中condition的作用 =================
+    // Controller 模拟
+    private void condition(String name, String email) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        // 第一种方式
+//        if (StringUtils.isNotBlank(name)) {
+//            wrapper.like("name", name);
+//        }
+//        if (StringUtils.isNotBlank(email)) {
+//            wrapper.like("email", email);
+//        }
+
+        // 第二中方式, 使用链式编程, 通过condition来控制条件加不加入到SQL中
+        wrapper.like(StringUtils.isNotBlank(name), "name", name)
+                .like(StringUtils.isNotBlank(email), "email", email);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testCondition() {
+        String name = "王";
+        String email = ""; // 不会加入SQL中
+        condition(name, email);
+    }
+
+    // =============== 实体作为条件构造器构造方法参数 =================
+    @Test
+    public void testSelectByWrapperEntity() {
+        // 查询条件 对应SQL语句 => WHERE name=? AND age=?
+        User u = new User();
+        u.setName("刘红雨"); // 配合注解 @TableField(condition=SqlCondition.LIKE)
+        u.setAge(32);
+
+        QueryWrapper<User> wrapper = new QueryWrapper<>(u);
+        // 此时要在SQL中添加 wrapper 参数, 会生成SQL语句 => WHERE name=? AND age=? AND (name = ? AND age = ?)
+        wrapper.eq("name", "刘红雨").eq("age", 32);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
 }
