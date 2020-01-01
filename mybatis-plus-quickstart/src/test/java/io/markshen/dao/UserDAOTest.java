@@ -2,15 +2,17 @@ package io.markshen.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.markshen.entity.User;
 import org.junit.jupiter.api.Test;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class UserDAOTest {
@@ -241,13 +243,154 @@ public class UserDAOTest {
     public void testSelectByWrapperEntity() {
         // 查询条件 对应SQL语句 => WHERE name=? AND age=?
         User u = new User();
-        u.setName("刘红雨"); // 配合注解 @TableField(condition=SqlCondition.LIKE)
+        u.setName("刘红雨"); // 配合注解 @TableField(condition=SqlCondition.LIKE), 当SqlCondition中的变量不够用的时候, 自己造
         u.setAge(32);
 
         QueryWrapper<User> wrapper = new QueryWrapper<>(u);
         // 此时要在SQL中添加 wrapper 参数, 会生成SQL语句 => WHERE name=? AND age=? AND (name = ? AND age = ?)
-        wrapper.eq("name", "刘红雨").eq("age", 32);
+        // wrapper.eq("name", "刘红雨").eq("age", 32);
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
+    }
+
+    // =============== 条件构造器allEq用法 =================
+    @Test
+    public void testSelectByWrapperAllEq01() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "王天风");
+        params.put("age", 25);
+
+        wrapper.allEq(params);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectByWrapperAllEq02() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "王天风");
+        params.put("age", null);
+
+        wrapper.allEq(params);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectByWrapperAllEq03() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "王天风");
+        params.put("age", null);
+
+        boolean isIgnoreNullVal = false;
+        wrapper.allEq(params, isIgnoreNullVal);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectByWrapperAllEq04() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "王天风");
+        params.put("age", null);
+
+        // 过滤条件中的name
+        wrapper.allEq((k, v) -> !k.equals("name"), params);
+        List<User> users = userDAO.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    // =============== 其他使用条件构造器的方法 =================
+
+    /**
+     * 只查询表中的几列就可以了
+     * selectMaps
+     */
+    @Test
+    public void testSelectByWrapperMaps01() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "雨").lt("age", 40);
+        List<Map<String, Object>> users = userDAO.selectMaps(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * 只查询表中的几列就可以了
+     * selectMaps
+     */
+    @Test
+    public void testSelectByWrapperMaps02() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "雨").lt("age", 40).select("name", "age");
+        List<Map<String, Object>> users = userDAO.selectMaps(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * 按照直属上级分组，查询每组的平均年龄、最大年龄、最小年龄。
+     * 并且只取年龄总和小于500的组。
+     * select avg(age) avg_age,min(age) min_age,max(age) max_age
+     * from user
+     * group by manager_id
+     * having sum(age) <500
+     */
+    @Test
+    public void testSelectByWrapperMaps03() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        // SELECT avg(age) AS avg_age,min(age) AS min_age,max(age) AS max_age FROM user GROUP BY manager_id HAVING sum(age) < ?
+        wrapper.select("avg(age) AS avg_age", "min(age) AS min_age", "max(age) AS max_age")
+                .groupBy("manager_id").having("sum(age) < {0}", 500);
+        List<Map<String, Object>> users = userDAO.selectMaps(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * 只有一列
+     * selectObjs
+     */
+    @Test
+    public void testSelectByWrapperObjs() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "雨").lt("age", 40).select("id", "name");
+        List<Object> users = userDAO.selectObjs(wrapper);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * 总记录数
+     */
+    @Test
+    public void testSelectByWrapperCount() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "雨").lt("age", 40);
+        Integer count = userDAO.selectCount(wrapper);
+        System.out.println(count);
+    }
+
+    /**
+     * 只输出一条
+     */
+    @Test
+    public void testSelectByWrapperSelectOne01() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "刘红雨").lt("age", 40);
+        User user = userDAO.selectOne(wrapper);
+        System.out.println(user);
+    }
+
+    /**
+     * 只输出一条反例：会出现异常
+     */
+    @Test
+    public void testSelectByWrapperSelectOne02() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like("name", "雨").lt("age", 40);
+        Exception exception = assertThrows(
+                MyBatisSystemException.class,
+                () -> userDAO.selectOne(wrapper));
     }
 }

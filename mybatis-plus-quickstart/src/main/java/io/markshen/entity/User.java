@@ -1,5 +1,7 @@
 package io.markshen.entity;
 
+import com.baomidou.mybatisplus.annotation.SqlCondition;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.ToString;
 
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 public class User {
 
     private Long id;
+
+    @TableField(condition= SqlCondition.LIKE)
     private String name;
     private Integer age;
     private String email;
