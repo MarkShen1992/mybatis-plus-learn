@@ -1,7 +1,11 @@
 package io.markshen.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.markshen.entity.User;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.MyBatisSystemException;
@@ -371,16 +375,7 @@ public class UserDAOTest {
         System.out.println(count);
     }
 
-    /**
-     * 只输出一条
-     */
-    @Test
-    public void testSelectByWrapperSelectOne01() {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.like("name", "刘红雨").lt("age", 40);
-        User user = userDAO.selectOne(wrapper);
-        System.out.println(user);
-    }
+
 
     /**
      * 只输出一条反例：会出现异常
@@ -392,5 +387,73 @@ public class UserDAOTest {
         Exception exception = assertThrows(
                 MyBatisSystemException.class,
                 () -> userDAO.selectOne(wrapper));
+    }
+
+    // ==================== Lambda表达式 ========================
+
+    /**
+     * 防止数据库列名误写
+     */
+    @Test
+    public void testSelectLambda01() {
+        LambdaQueryWrapper<User> lambda = new QueryWrapper<User>().lambda();
+        // LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // LambdaQueryWrapper<User> UserLambdaQueryWrapper = Wrappers.<User>lambdaQuery();
+
+        // WHERE (name LIKE ? AND age < ?)
+        lambda.like(User::getName, "雨").lt(User::getAge, 40);
+        List<User> users = userDAO.selectList(lambda);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * 防止数据库列名误写
+     * WHERE (name LIKE ? AND ( (age < ? OR email IS NOT NULL) ))
+     */
+    @Test
+    public void testSelectLambda02() {
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper.like(User::getName, "王")
+                .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
+        List<User> users = userDAO.selectList(userLambdaQueryWrapper);
+        users.forEach(System.out::println);
+    }
+
+    /**
+     * WHERE (name LIKE ? AND age >= ?)
+     */
+    @Test
+    public void testSelectLambda03() {
+        List<User> users = new LambdaQueryChainWrapper<User>(userDAO).
+                like(User::getName, "雨").ge(User::getAge, 20).list();
+        users.forEach(System.out::println);
+    }
+
+    // =============== 自定义SQL =====================
+
+    /**
+     * 自定义SQL
+     */
+    @Test
+    public void testSelectAll() {
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper.like(User::getName, "王")
+                .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
+        List<User> users = userDAO.selectAll(userLambdaQueryWrapper);
+        users.forEach(System.out::println);
+    }
+
+    // =============== 物理分页查询 =======================
+
+    @Test
+    public void testSelectPage() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.ge("age", 26);
+
+        Page<User> page = new Page<>(1, 2);
+        IPage<User> result = userDAO.selectPage(page, wrapper);
+        System.out.println("totalPage=" + result.getPages());
+        System.out.println("totalRecords=" + result.getRecords());
+        result.getRecords().forEach(System.out::println);
     }
 }
