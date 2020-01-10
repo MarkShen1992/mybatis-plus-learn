@@ -1,6 +1,7 @@
 package io.markshen.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
  * https://mp.baomidou.com/guide/page.html
  */
 @Configurable
+@MapperScan("io.markshen.dao")
 public class MybatisPlusConfig {
 
     @Bean

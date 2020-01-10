@@ -450,10 +450,10 @@ public class UserDAOTest {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.ge("age", 26);
 
-        Page<User> page = new Page<>(1, 2);
-        IPage<User> result = userDAO.selectPage(page, wrapper);
-        System.out.println("totalPage=" + result.getPages());
-        System.out.println("totalRecords=" + result.getRecords());
-        result.getRecords().forEach(System.out::println);
+        Page page = new Page(1, 2);
+        Page p = userDAO.selectPage(page, wrapper);
+        System.out.println("total:" + p.getTotal());
+        System.out.println("size:" + p.getSize());
+        p.getRecords().forEach(System.out::println);
     }
 }
