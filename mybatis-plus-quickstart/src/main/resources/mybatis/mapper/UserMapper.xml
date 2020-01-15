@@ -4,4 +4,8 @@
     <select id="selectAll" resultType="io.markshen.entity.User">
         SELECT * FROM user ${ew.customSqlSegment}
     </select>
+
+    <select id="selectUserPage" resultType="io.markshen.entity.User">
+        SELECT * FROM user ${ew.customSqlSegment}
+    </select>
 </mapper>

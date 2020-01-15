@@ -2,6 +2,7 @@ package io.markshen.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
@@ -446,14 +447,77 @@ public class UserDAOTest {
     // =============== 物理分页查询 =======================
 
     @Test
-    public void testSelectPage() {
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
+    public void testSelectPage01() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>();
         wrapper.ge("age", 26);
-
         Page page = new Page(1, 2);
-        Page p = userDAO.selectPage(page, wrapper);
+
+        IPage<User> p = userDAO.selectPage(page, wrapper);
         System.out.println("total:" + p.getTotal());
         System.out.println("size:" + p.getSize());
         p.getRecords().forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectPage02() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>();
+        wrapper.ge("age", 26);
+        Page page = new Page(1, 2);
+
+        IPage<Map<String, Object>> p = userDAO.selectMapsPage(page, wrapper);
+        System.out.println("total:" + p.getTotal());
+        System.out.println("size:" + p.getSize());
+        p.getRecords().forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectPage03() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>();
+        wrapper.ge("age", 26);
+        // false 不查询总记录数
+        Page page = new Page(1, 2, false);
+
+        IPage<User> p = userDAO.selectPage(page, wrapper);
+        System.out.println("total:" + p.getTotal());
+        System.out.println("size:" + p.getSize());
+        p.getRecords().forEach(System.out::println);
+    }
+
+    @Test
+    public void testSelectPage04() {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>();
+        wrapper.ge("age", 26);
+        // false 不查询总记录数
+        Page page = new Page(1, 2);
+
+        IPage<User> p = userDAO.selectUserPage(page, wrapper);
+        System.out.println("total:" + p.getTotal());
+        System.out.println("size:" + p.getSize());
+        p.getRecords().forEach(System.out::println);
+    }
+
+    // ================================= update =======================================
+    @Test
+    public void testUpdateById() {
+        User u = new User();
+        u.setId(1088248166370832385L);
+        u.setAge(26);
+        u.setEmail("wangtianfeng2@baomidou.com");
+
+        int result = userDAO.updateById(u);
+        System.out.println("更新了：" + result + "条数据.");
+    }
+
+    @Test
+    public void testUpdateByWrapper() {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper();
+        updateWrapper.eq("name", "李艺伟").eq("age", 28);
+
+        User u = new User();
+        u.setAge(29);
+        u.setEmail("liyiwei2020@baomidou.com");
+
+        int result = userDAO.update(u, updateWrapper);
+        System.out.println("更新了：" + result + "条数据.");
     }
 }
