@@ -2,10 +2,13 @@ package io.markshen.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.markshen.entity.User;
 import org.junit.jupiter.api.Test;
@@ -520,4 +523,81 @@ public class UserDAOTest {
         int result = userDAO.update(u, updateWrapper);
         System.out.println("更新了：" + result + "条数据.");
     }
+
+    @Test
+    public void testUpdateByWrapper02() {
+        User user = new User();
+        user.setName("李艺伟");
+
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper(user);
+        updateWrapper.eq("name", "李艺伟").eq("age", 28);
+
+        User u = new User();
+        u.setAge(29);
+        u.setEmail("liyiwei2020@baomidou.com");
+
+        int result = userDAO.update(u, updateWrapper);
+        System.out.println("更新了：" + result + "条数据.");
+    }
+
+    /**
+     * 更新少量字段
+     */
+    @Test
+    public void testUpdateByWrapper03() {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper();
+        updateWrapper.eq("name", "李艺伟").eq("age", 28).set("age", 30);
+
+        int result = userDAO.update(null, updateWrapper);
+        System.out.println("更新了：" + result + "条数据.");
+    }
+
+    @Test
+    public void testUpdateByWrapperLambda() {
+        LambdaUpdateWrapper<User> lambdaUpdateWrapper = Wrappers.<User>lambdaUpdate();
+        lambdaUpdateWrapper.eq(User::getName, "李艺伟").eq(User::getAge, 28).set(User::getAge, 30);
+
+        int result = userDAO.update(null, lambdaUpdateWrapper);
+        System.out.println("更新了：" + result + "条数据.");
+    }
+
+    @Test
+    public void testUpdateByWrapperLambdaChain() {
+        boolean result = new LambdaUpdateChainWrapper<User>(userDAO).eq(User::getName, "李艺伟").eq(User::getAge, 29).set(User::getAge, 28).update();
+        System.out.println("更新了：" + result);
+    }
+
+    // ============================================ 删除 ==============================================
+    @Test
+    public void testDeletebyId() {
+        int rows = userDAO.deleteById(1210711305862889473L);
+        System.out.println("删除了：" + rows + "条数据.");
+    }
+
+    @Test
+    public void testDeletebyMap() {
+        Map<String, Object> columnMap = new HashMap<>();
+        columnMap.put("name", "李白");
+        columnMap.put("age", 28);
+
+        int rows = userDAO.deleteByMap(columnMap);
+        System.out.println("删除了：" + rows + "条数据.");
+    }
+
+    @Test
+    public void testDeletebyBatchIds() {
+        int rows = userDAO.deleteBatchIds(Arrays.asList(1094592041087729666L, 1094590409767661570L));
+        System.out.println("删除了：" + rows + "条数据.");
+    }
+
+    @Test
+    public void testDeletebyWrapper() {
+        LambdaQueryWrapper<User> lambdaQueryWrapper = Wrappers.<User>lambdaQuery();
+        lambdaQueryWrapper.eq(User::getAge, 27).or().gt(User::getAge, 41);
+        int rows = userDAO.delete(lambdaQueryWrapper);
+        System.out.println("删除了：" + rows + "条数据.");
+    }
+
+    // ==================================== AR模式 ========================================
+    // TODO
 }
