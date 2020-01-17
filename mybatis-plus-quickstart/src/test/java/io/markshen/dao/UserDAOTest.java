@@ -668,4 +668,59 @@ public class UserDAOTest {
         boolean result = u.deleteById();
         System.out.println("是否删除：" + (result == true ? "是" : "否"));
     }
+
+    // ========================== 主键策略 =============================
+    // IdType.java
+    // 局部主键策略: 在实体类主键字段上添加注解 @TableId(type=IdType.AUTO)
+    // alter table `user` change column id id bigint(20) auto_increment;
+    // 当系统设置全局主键策略，局部主键策略就不需要设置了；但是全局策略和局部策略都设置了，局部策略优于全局策略
+    // 选用什么样的主键策略呢？由系统需求而定
+    /**
+     * AUTO
+     */
+    @Test
+    public void primaryKeyPolicy_AUTO_Insert() {
+        User u = new User();
+        u.setName("曹操");
+        u.setAge(25);
+        u.setEmail("xz@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insert();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+        System.out.println("userId=" + u.getId());
+    }
+
+    /**
+     * NONE
+     */
+    @Test
+    public void primaryKeyPolicy_NONE_Insert() {
+        User u = new User();
+        u.setId(1L);
+        u.setName("曹冲");
+        u.setAge(25);
+        u.setEmail("xz@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insert();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+        System.out.println("userId=" + u.getId());
+    }
+
+    /**
+     * ID_WORKER, ID_WORKER_STR
+     */
+    @Test
+    public void primaryKeyPolicy_ID_WORKER_Insert() {
+        User u = new User();
+        u.setName("白居易");
+        u.setAge(25);
+        u.setEmail("bjy@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insert();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+        System.out.println("userId=" + u.getId());
+    }
 }
