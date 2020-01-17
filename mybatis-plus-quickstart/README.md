@@ -60,5 +60,11 @@ MP默认为`_`对应数据库中的驼峰，数据库表也是下划线的，MP�
 
 
 
-## Retrieve中condition的作用
+## MP基本配置
+
+[使用配置](https://mp.baomidou.com/config/#%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE)
+
+
+
+## 通用Service
 
