@@ -599,5 +599,73 @@ public class UserDAOTest {
     }
 
     // ==================================== AR模式 ========================================
-    // TODO
+    @Test
+    public void insert() {
+        User u = new User();
+        u.setName("曹操");
+        u.setAge(25);
+        u.setEmail("xz@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insert();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+    }
+
+    @Test
+    public void updateById() {
+        User u = new User();
+        u.setId(1218293835189239809L);
+        u.setEmail("cc@163.com");
+        boolean result = u.updateById();
+        System.out.println("更新是否成功：" + (result == true ? "是" : "否"));
+    }
+
+    @Test
+    public void selectById() {
+        User u = new User();
+        User user = u.selectById(1218293835189239809L);
+        System.out.println(user);
+    }
+
+    @Test
+    public void selectById02() {
+        User u = new User();
+        u.setId(1218293835189239809L);
+        User user = u.selectById();
+        System.out.println(user);
+    }
+
+    @Test
+    public void insertOrUpdate01() {
+        User u = new User();
+        u.setName("曹操");
+        u.setAge(25);
+        u.setEmail("xz@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insertOrUpdate();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+    }
+
+    @Test
+    public void insertOrUpdate02() {
+        User u = new User();
+        // 传id会执行SELECT条件查询
+        u.setId(1218293084358475777L);
+        u.setName("曹操");
+        u.setAge(25);
+        u.setEmail("xz@163.com");
+        u.setManagerId(1088248166370832385L);
+        u.setCreateTime(LocalDateTime.now());
+        boolean result = u.insertOrUpdate();
+        System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+    }
+
+    @Test
+    public void deleteById() {
+        User u = new User();
+        u.setId(1218293835189239809L);
+        boolean result = u.deleteById();
+        System.out.println("是否删除：" + (result == true ? "是" : "否"));
+    }
 }
