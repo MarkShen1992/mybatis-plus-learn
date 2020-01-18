@@ -1,5 +1,6 @@
 package io.markshen.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -35,5 +36,6 @@ public class User {
 
     // 逻辑删除标识(0: not deleted, 1: deleted)
     @TableLogic
+    @TableField(select = false)  // 去掉查询结果中的不显示 deleted 字段
     private Integer deleted;
 }
