@@ -14,7 +14,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        setFieldValByName("createTime", LocalDateTime.now(), metaObject);
+        if (metaObject.hasSetter("createTime")) {
+            setFieldValByName("createTime", LocalDateTime.now(), metaObject);
+        }
     }
 
     /**
@@ -23,6 +25,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
-        setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+        // 自己设置值的时候就不会执行下面的语句
+        Object val = getFieldValByName("updateTime", metaObject);
+        if (val == null) {
+            setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+        }
     }
 }
