@@ -1,5 +1,6 @@
 package io.markshen.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -26,9 +27,11 @@ public class User {
     private Long managerId;
 
     // 创建时间
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     // 修改时间
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 
     // 版本
