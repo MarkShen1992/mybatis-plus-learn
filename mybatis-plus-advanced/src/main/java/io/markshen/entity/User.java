@@ -1,9 +1,6 @@
 package io.markshen.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -35,6 +32,7 @@ public class User {
     private LocalDateTime updateTime;
 
     // 版本
+    @Version
     private Integer version;
 
     // 逻辑删除标识(0: not deleted, 1: deleted)
