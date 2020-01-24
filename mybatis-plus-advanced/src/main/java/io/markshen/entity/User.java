@@ -2,11 +2,13 @@ package io.markshen.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("ad_user")
+@Accessors(chain = true)
 public class User {
     // 主键
     private Long id;

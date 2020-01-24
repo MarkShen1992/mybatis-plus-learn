@@ -1,0 +1,22 @@
+# database connection config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mybatis-plus?serverTimezone=UTC
+    username: root
+    password: root
+
+# 日志
+logging:
+  level:
+    root: warn
+    io.markshen.dao: trace
+  pattern:
+    console: '%p%m%n'
+
+# 逻辑删除配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-not-delete-value: 0
+      logic-delete-value: 1
