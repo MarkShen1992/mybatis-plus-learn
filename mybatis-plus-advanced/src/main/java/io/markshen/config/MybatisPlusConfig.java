@@ -1,10 +1,19 @@
 package io.markshen.config;
 
+import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.tenant.TenantHandler;
+import com.baomidou.mybatisplus.extension.plugins.tenant.TenantSqlParser;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * https://mp.baomidou.com/guide/page.html
@@ -12,6 +21,40 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @MapperScan("io.markshen.dao")
 public class MybatisPlusConfig {
+
+    /**
+     * 多租户配置
+     * @return
+     */
+    @Bean
+    public PaginationInterceptor paginationInterceptor() {
+        List<ISqlParser> iSqlParserList = new ArrayList<>();
+        TenantSqlParser tenantSqlParser = new TenantSqlParser();
+        tenantSqlParser.setTenantHandler(new TenantHandler() {
+            @Override
+            public Expression getTenantId(boolean where) {
+                // 实际manager_id对应的值, Session或配置文件中或静态变量取出来的配置信息
+                return new LongValue(1088248166370832385L);
+            }
+
+            @Override
+            public String getTenantIdColumn() {
+                return "manager_id";
+            }
+
+            @Override
+            public boolean doTableFilter(String tableName) {
+                if ("role".equals(tableName)) {
+                    return true;
+                }
+                return false; // 加过滤
+            }
+        });
+        iSqlParserList.add(tenantSqlParser);
+        PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
+        paginationInterceptor.setSqlParserList(iSqlParserList);
+        return paginationInterceptor;
+    }
 
     @Bean
     public OptimisticLockerInterceptor getOptimisticLockerInterceptor() {
