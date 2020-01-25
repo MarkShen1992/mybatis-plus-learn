@@ -20,6 +20,12 @@ public class UserDaoTests {
 		users.forEach(System.out::println);
 	}
 
+	@Test
+	public void testSelectById() {
+		User u = userDAO.selectById(1088248166370832385L);
+		System.out.println(u);
+	}
+
 	/**
 	 * 手动加 deleted = 0的条件
 	 */
