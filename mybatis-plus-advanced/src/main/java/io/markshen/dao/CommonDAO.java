@@ -22,4 +22,11 @@ public interface CommonDAO<T> extends BaseMapper<T> {
      * @return
      */
     int insertBatchSomeColumn(List<T> list);
+
+    /**
+     * deleteByIdWithFill
+     * @param t
+     * @return
+     */
+    int deleteByIdWithFill(T t);
 }

@@ -17,6 +17,7 @@ public class User {
     private String name;
 
     // 年龄
+    @TableField(fill = FieldFill.UPDATE)
     private Integer age;
 
     // 邮箱

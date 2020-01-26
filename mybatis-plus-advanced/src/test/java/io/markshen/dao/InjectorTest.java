@@ -39,4 +39,13 @@ public class InjectorTest {
 		int rows = userDAO.insertBatchSomeColumn(users);
 		System.out.println("影响行数: " + rows);
 	}
+
+	@Test
+	public void testDeleteByIdWithFill() {
+		User u = new User();
+		u.setId(1221311782769991682L);
+		u.setName("李兴华");
+		int rows = userDAO.deleteByIdWithFill(u);
+		System.out.println("删除行数：" + rows);
+	}
 }
