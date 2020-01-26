@@ -2,6 +2,7 @@ package io.markshen.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
 import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
 import com.baomidou.mybatisplus.extension.injector.methods.LogicDeleteByIdWithFill;
 import io.markshen.method.DeleteAllDataMethod;
@@ -17,6 +18,7 @@ public class MySQLInjector extends DefaultSqlInjector {
         abstractMethods.add(new DeleteAllDataMethod());
         abstractMethods.add(new InsertBatchSomeColumn(t -> !t.isLogicDelete() && !t.getColumn().equals("age")));
         abstractMethods.add(new LogicDeleteByIdWithFill());
+        abstractMethods.add(new AlwaysUpdateSomeColumnById(t -> !t.getColumn().equals("name")));
         return abstractMethods;
     }
 }

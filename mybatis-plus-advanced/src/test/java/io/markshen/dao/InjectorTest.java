@@ -48,4 +48,15 @@ public class InjectorTest {
 		int rows = userDAO.deleteByIdWithFill(u);
 		System.out.println("删除行数：" + rows);
 	}
+
+	@Test
+	public void testAlwaysUpdateSomeColumnById() {
+		User u = new User();
+		u.setId(1221311782799351810L);
+		u.setAge(36);
+		u.setName("李兴");
+
+		int rows = userDAO.alwaysUpdateSomeColumnById(u);
+		System.out.println("删除行数：" + rows);
+	}
 }
