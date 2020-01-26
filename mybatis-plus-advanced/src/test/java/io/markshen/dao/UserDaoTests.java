@@ -1,6 +1,7 @@
 package io.markshen.dao;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import io.markshen.config.MybatisPlusConfig;
 import io.markshen.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,16 @@ public class UserDaoTests {
 
 	@Test
 	public void testSelectAll() {
+		List<User> users = userDAO.selectList(null);
+		users.forEach(System.out::println);
+	}
+
+	/**
+	 * SELECT id,name,age,email,manager_id,create_time,update_time,version FROM ad_user_2020 WHERE deleted=0
+	 */
+	@Test
+	public void testSelectAll02() {
+		MybatisPlusConfig.myTableName.set("ad_user_2020");
 		List<User> users = userDAO.selectList(null);
 		users.forEach(System.out::println);
 	}

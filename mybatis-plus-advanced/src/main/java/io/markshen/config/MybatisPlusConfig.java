@@ -3,6 +3,8 @@ package io.markshen.config;
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.core.parser.ISqlParserFilter;
 import com.baomidou.mybatisplus.core.parser.SqlParserHelper;
+import com.baomidou.mybatisplus.extension.parsers.DynamicTableNameParser;
+import com.baomidou.mybatisplus.extension.parsers.ITableNameHandler;
 import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.tenant.TenantHandler;
@@ -17,7 +19,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * https://mp.baomidou.com/guide/page.html
@@ -26,6 +30,8 @@ import java.util.List;
 @MapperScan("io.markshen.dao")
 public class MybatisPlusConfig {
 
+    public static ThreadLocal<String> myTableName = new ThreadLocal<>();
+
     /**
      * 多租户配置
      * @return
@@ -33,28 +39,41 @@ public class MybatisPlusConfig {
     @Bean
     public PaginationInterceptor paginationInterceptor() {
         List<ISqlParser> iSqlParserList = new ArrayList<>();
-        TenantSqlParser tenantSqlParser = new TenantSqlParser();
-        tenantSqlParser.setTenantHandler(new TenantHandler() {
-            @Override
-            public Expression getTenantId(boolean where) {
-                // 实际manager_id对应的值, Session或配置文件中或静态变量取出来的配置信息
-                return new LongValue(1088248166370832385L);
-            }
+//        TenantSqlParser tenantSqlParser = new TenantSqlParser();
+//        tenantSqlParser.setTenantHandler(new TenantHandler() {
+//            @Override
+//            public Expression getTenantId(boolean where) {
+//                // 实际manager_id对应的值, Session或配置文件中或静态变量取出来的配置信息
+//                return new LongValue(1088248166370832385L);
+//            }
+//
+//            @Override
+//            public String getTenantIdColumn() {
+//                return "manager_id";
+//            }
+//
+//            @Override
+//            public boolean doTableFilter(String tableName) {
+//                if ("role".equals(tableName)) {
+//                    return true;
+//                }
+//                return false; // 加过滤
+//            }
+//        });
+//        iSqlParserList.add(tenantSqlParser);
 
+        DynamicTableNameParser dynamicTableNameParser = new DynamicTableNameParser();
+        // 替换逻辑
+        Map<String, ITableNameHandler> tableNameHandlerMap = new HashMap<>();
+        tableNameHandlerMap.put("ad_user", new ITableNameHandler() {
             @Override
-            public String getTenantIdColumn() {
-                return "manager_id";
-            }
-
-            @Override
-            public boolean doTableFilter(String tableName) {
-                if ("role".equals(tableName)) {
-                    return true;
-                }
-                return false; // 加过滤
+            public String dynamicTableName(MetaObject metaObject, String sql, String tableName) {
+                return myTableName.get();
             }
         });
-        iSqlParserList.add(tenantSqlParser);
+        dynamicTableNameParser.setTableNameHandlerMap(tableNameHandlerMap);
+        iSqlParserList.add(dynamicTableNameParser);
+
         PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
         paginationInterceptor.setSqlParserList(iSqlParserList);
 
