@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
-public interface UserDAO extends BaseMapper<User> {
+public interface UserDAO extends CommonDAO<User> {
 
     @SqlParser(filter = true) // 过滤掉，不添加租户信息
     @Select("SELECT * FROM ad_user ${ew.customSqlSegment}")
