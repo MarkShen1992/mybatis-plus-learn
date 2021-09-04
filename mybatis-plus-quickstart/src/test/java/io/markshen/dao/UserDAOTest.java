@@ -1,5 +1,21 @@
 package io.markshen.dao;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.mybatis.spring.MyBatisSystemException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.Assert;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -10,17 +26,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import io.markshen.entity.User;
-import org.junit.jupiter.api.Test;
-import org.mybatis.spring.MyBatisSystemException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class UserDAOTest {
@@ -75,8 +82,7 @@ public class UserDAOTest {
     // =============== 查询需求 =================
 
     /**
-     * 名字中包含雨并且年龄小于40
-     * 	   WHERE (name LIKE ? AND age < ?)
+     * 名字中包含雨并且年龄小于40 WHERE (name LIKE ? AND age < ?)
      */
     @Test
     public void testSelectByWrapper01() {
@@ -88,8 +94,7 @@ public class UserDAOTest {
     }
 
     /**
-     * 名字中包含雨年并且龄大于等于20且小于等于40并且email不为空
-     *     WHERE (name LIKE ? AND age BETWEEN ? AND ? AND email IS NOT NULL)
+     * 名字中包含雨年并且龄大于等于20且小于等于40并且email不为空 WHERE (name LIKE ? AND age BETWEEN ? AND ? AND email IS NOT NULL)
      */
     @Test
     public void testSelectByWrapper02() {
@@ -100,8 +105,7 @@ public class UserDAOTest {
     }
 
     /**
-     * 名字为王姓或者年龄大于等于25，按照年龄降序排列，年龄相同按照id升序排列
-     *     name like '王%' or age>=25 order by age desc,id asc
+     * 名字为王姓或者年龄大于等于25，按照年龄降序排列，年龄相同按照id升序排列 name like '王%' or age>=25 order by age desc,id asc
      */
     @Test
     public void testSelectByWrapper03() {
@@ -112,64 +116,55 @@ public class UserDAOTest {
     }
 
     /**
-     * Warn: 有SQL注入的风险
-     * 创建日期为2019年2月14日并且直属上级为名字为王姓
-     *     date_format(create_time,'%Y-%m-%d')='2019-02-14' and manager_id in (select id from user where name like '王%')
+     * Warn: 有SQL注入的风险 创建日期为2019年2月14日并且直属上级为名字为王姓 date_format(create_time,'%Y-%m-%d')='2019-02-14' and manager_id in
+     * (select id from user where name like '王%')
      */
     @Test
     public void testSelectByWrapper04() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-//        wrapper.apply("date_format(create_time,'%Y-%m-%d') = {0}", "2019-02-14")
-//            .inSql("manager_id", "select id from user where name like '王%'");
-        wrapper.apply("date_format(create_time,'%Y-%m-%d') = 2019-02-14 or true or true")
-                .inSql("manager_id", "select id from user where name like '王%'");
+        // wrapper.apply("date_format(create_time,'%Y-%m-%d') = {0}", "2019-02-14")
+        // .inSql("manager_id", "select id from user where name like '王%'");
+        wrapper.apply("date_format(create_time,'%Y-%m-%d') = 2019-02-14 or true or true").inSql("manager_id",
+            "select id from user where name like '王%'");
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
 
     /**
-     * 名字为王姓并且（年龄小于40或邮箱不为空）
-     *     name like '王%' and (age<40 or email is not null)
+     * 名字为王姓并且（年龄小于40或邮箱不为空） name like '王%' and (age<40 or email is not null)
      */
     @Test
     public void testSelectByWrapper05() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.likeRight("name", "王")
-                .and(condition -> condition.lt("age", 40).or().isNotNull("email"));
+        wrapper.likeRight("name", "王").and(condition -> condition.lt("age", 40).or().isNotNull("email"));
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
 
     /**
-     * 名字为王姓或者（年龄小于40并且年龄大于20并且邮箱不为空）
-     *     name like '王%' or (age<40 and age>20 and email is not null)
+     * 名字为王姓或者（年龄小于40并且年龄大于20并且邮箱不为空） name like '王%' or (age<40 and age>20 and email is not null)
      */
     @Test
     public void testSelectByWrapper06() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.likeRight("name", "王")
-                .or(condition -> condition.lt("age", 40).gt("age", 20).isNotNull("email"));
+        wrapper.likeRight("name", "王").or(condition -> condition.lt("age", 40).gt("age", 20).isNotNull("email"));
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
 
     /**
-     *  优先级： and > or
-     * （年龄小于40或邮箱不为空）并且名字为王姓
-     *     (age<40 or email is not null) and name like '王%'
+     * 优先级： and > or （年龄小于40或邮箱不为空）并且名字为王姓 (age<40 or email is not null) and name like '王%'
      */
     @Test
     public void testSelectByWrapper07() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.nested(condition -> condition.lt("age", 40).or().isNotNull("email"))
-                .likeRight("name", "王");
+        wrapper.nested(condition -> condition.lt("age", 40).or().isNotNull("email")).likeRight("name", "王");
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
 
     /**
-     *  年龄为30、31、34、35
-     *     age in (30、31、34、35)
+     * 年龄为30、31、34、35 age in (30、31、34、35)
      */
     @Test
     public void testSelectByWrapper08() {
@@ -180,9 +175,7 @@ public class UserDAOTest {
     }
 
     /**
-     *  Warn：慎用，有SQL注入风险
-     *  只返回满足条件的其中一条语句即可
-     *      limit 1
+     * Warn：慎用，有SQL注入风险 只返回满足条件的其中一条语句即可 limit 1
      */
     @Test
     public void testSelectByWrapper09() {
@@ -195,8 +188,7 @@ public class UserDAOTest {
     // =============== select中字段不全部出现的查询 =================
 
     /**
-     * 名字中包含雨并且年龄小于40
-     * 	   WHERE (name LIKE ? AND age < ?)
+     * 名字中包含雨并且年龄小于40 WHERE (name LIKE ? AND age < ?)
      */
     @Test
     public void testSelectByWrapper10() {
@@ -207,15 +199,13 @@ public class UserDAOTest {
     }
 
     /**
-     * 名字中包含雨并且年龄小于40
-     * 	   WHERE (name LIKE ? AND age < ?)
+     * 名字中包含雨并且年龄小于40 WHERE (name LIKE ? AND age < ?)
      */
     @Test
     public void testSelectByWrapper11() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.like("name", "雨").lt("age", 40)
-                .select(User.class, info -> !info.getColumn().equals("create_time")
-                && !info.getColumn().equals("manager_id"));
+        wrapper.like("name", "雨").lt("age", 40).select(User.class,
+            info -> !info.getColumn().equals("create_time") && !info.getColumn().equals("manager_id"));
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
@@ -225,16 +215,15 @@ public class UserDAOTest {
     private void condition(String name, String email) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         // 第一种方式
-//        if (StringUtils.isNotBlank(name)) {
-//            wrapper.like("name", name);
-//        }
-//        if (StringUtils.isNotBlank(email)) {
-//            wrapper.like("email", email);
-//        }
+        // if (StringUtils.isNotBlank(name)) {
+        // wrapper.like("name", name);
+        // }
+        // if (StringUtils.isNotBlank(email)) {
+        // wrapper.like("email", email);
+        // }
 
         // 第二中方式, 使用链式编程, 通过condition来控制条件加不加入到SQL中
-        wrapper.like(StringUtils.isNotBlank(name), "name", name)
-                .like(StringUtils.isNotBlank(email), "email", email);
+        wrapper.like(StringUtils.isNotBlank(name), "name", name).like(StringUtils.isNotBlank(email), "email", email);
         List<User> users = userDAO.selectList(wrapper);
         users.forEach(System.out::println);
     }
@@ -315,8 +304,7 @@ public class UserDAOTest {
     // =============== 其他使用条件构造器的方法 =================
 
     /**
-     * 只查询表中的几列就可以了
-     * selectMaps
+     * 只查询表中的几列就可以了 selectMaps
      */
     @Test
     public void testSelectByWrapperMaps01() {
@@ -327,8 +315,7 @@ public class UserDAOTest {
     }
 
     /**
-     * 只查询表中的几列就可以了
-     * selectMaps
+     * 只查询表中的几列就可以了 selectMaps
      */
     @Test
     public void testSelectByWrapperMaps02() {
@@ -339,26 +326,22 @@ public class UserDAOTest {
     }
 
     /**
-     * 按照直属上级分组，查询每组的平均年龄、最大年龄、最小年龄。
-     * 并且只取年龄总和小于500的组。
-     * select avg(age) avg_age,min(age) min_age,max(age) max_age
-     * from user
-     * group by manager_id
-     * having sum(age) <500
+     * 按照直属上级分组，查询每组的平均年龄、最大年龄、最小年龄。 并且只取年龄总和小于500的组。 select avg(age) avg_age,min(age) min_age,max(age) max_age from
+     * user group by manager_id having sum(age) <500
      */
     @Test
     public void testSelectByWrapperMaps03() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        // SELECT avg(age) AS avg_age,min(age) AS min_age,max(age) AS max_age FROM user GROUP BY manager_id HAVING sum(age) < ?
-        wrapper.select("avg(age) AS avg_age", "min(age) AS min_age", "max(age) AS max_age")
-                .groupBy("manager_id").having("sum(age) < {0}", 500);
+        // SELECT avg(age) AS avg_age,min(age) AS min_age,max(age) AS max_age FROM user GROUP BY manager_id HAVING
+        // sum(age) < ?
+        wrapper.select("avg(age) AS avg_age", "min(age) AS min_age", "max(age) AS max_age").groupBy("manager_id")
+            .having("sum(age) < {0}", 500);
         List<Map<String, Object>> users = userDAO.selectMaps(wrapper);
         users.forEach(System.out::println);
     }
 
     /**
-     * 只有一列
-     * selectObjs
+     * 只有一列 selectObjs
      */
     @Test
     public void testSelectByWrapperObjs() {
@@ -379,8 +362,6 @@ public class UserDAOTest {
         System.out.println(count);
     }
 
-
-
     /**
      * 只输出一条反例：会出现异常
      */
@@ -388,9 +369,7 @@ public class UserDAOTest {
     public void testSelectByWrapperSelectOne02() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.like("name", "雨").lt("age", 40);
-        Exception exception = assertThrows(
-                MyBatisSystemException.class,
-                () -> userDAO.selectOne(wrapper));
+        Exception exception = assertThrows(MyBatisSystemException.class, () -> userDAO.selectOne(wrapper));
     }
 
     // ==================== Lambda表达式 ========================
@@ -411,14 +390,13 @@ public class UserDAOTest {
     }
 
     /**
-     * 防止数据库列名误写
-     * WHERE (name LIKE ? AND ( (age < ? OR email IS NOT NULL) ))
+     * 防止数据库列名误写 WHERE (name LIKE ? AND ( (age < ? OR email IS NOT NULL) ))
      */
     @Test
     public void testSelectLambda02() {
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.like(User::getName, "王")
-                .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
+            .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
         List<User> users = userDAO.selectList(userLambdaQueryWrapper);
         users.forEach(System.out::println);
     }
@@ -428,8 +406,8 @@ public class UserDAOTest {
      */
     @Test
     public void testSelectLambda03() {
-        List<User> users = new LambdaQueryChainWrapper<User>(userDAO).
-                like(User::getName, "雨").ge(User::getAge, 20).list();
+        List<User> users =
+            new LambdaQueryChainWrapper<User>(userDAO).like(User::getName, "雨").ge(User::getAge, 20).list();
         users.forEach(System.out::println);
     }
 
@@ -442,7 +420,7 @@ public class UserDAOTest {
     public void testSelectAll() {
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.like(User::getName, "王")
-                .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
+            .and(lqw -> lqw.lt(User::getAge, 40).or().isNotNull(User::getEmail));
         List<User> users = userDAO.selectAll(userLambdaQueryWrapper);
         users.forEach(System.out::println);
     }
@@ -563,7 +541,8 @@ public class UserDAOTest {
 
     @Test
     public void testUpdateByWrapperLambdaChain() {
-        boolean result = new LambdaUpdateChainWrapper<User>(userDAO).eq(User::getName, "李艺伟").eq(User::getAge, 29).set(User::getAge, 28).update();
+        boolean result = new LambdaUpdateChainWrapper<User>(userDAO).eq(User::getName, "李艺伟").eq(User::getAge, 29)
+            .set(User::getAge, 28).update();
         System.out.println("更新了：" + result);
     }
 
@@ -609,6 +588,15 @@ public class UserDAOTest {
         u.setCreateTime(LocalDateTime.now());
         boolean result = u.insert();
         System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
+    }
+
+    @Test
+    public void updateByUserId() {
+        User u = new User();
+        u.setId(1218304500591243270L);
+        u.setEmail("cc@163.com");
+        boolean result = u.updateById();
+        System.out.println("更新是否成功：" + (result == true ? "是" : "否"));
     }
 
     @Test
