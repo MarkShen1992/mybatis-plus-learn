@@ -8,4 +8,20 @@
     <select id="selectUserPage" resultType="io.markshen.entity.User">
         SELECT * FROM user ${ew.customSqlSegment}
     </select>
+
+    <select id="getUserByUser" resultType="io.markshen.entity.User">
+        SELECT
+        id, `name`, age, email, manager_id AS managerId, create_time AS createTime
+        FROM
+        `user`
+        <where>
+            <!-- 使用三方类库中的方法判断 -->
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user.id)">
+                AND id = #{user.id}
+            </if>
+            <if test="user.age != null and user.age != ''">
+                AND age = #{user.age}
+            </if>
+        </where>
+    </select>
 </mapper>

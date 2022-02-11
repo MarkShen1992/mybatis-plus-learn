@@ -3,12 +3,7 @@ package io.markshen.dao;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.MyBatisSystemException;
@@ -34,6 +29,31 @@ public class UserDAOTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Test
+    public void testGetUserByUser() {
+        User condition = new User();
+        condition.setId(1087982257332887553L);
+        User user = userDAO.getUserByUser(condition);
+        Assert.notNull(user, "object is not null.");
+    }
+
+    @Test
+    public void testGetUserByUser2() {
+        User condition = new User();
+        condition.setId(1087982257332887553L);
+        condition.setAge(40);
+        User user = userDAO.getUserByUser(condition);
+        Assert.notNull(user, "object is not null.");
+    }
+
+    @Test
+    public void testGetUserByUser3() {
+        User condition = new User();
+        condition.setAge(40);
+        User user = userDAO.getUserByUser(condition);
+        Assert.notNull(user, "object is not null.");
+    }
 
     @Test
     public void testSelect() {
