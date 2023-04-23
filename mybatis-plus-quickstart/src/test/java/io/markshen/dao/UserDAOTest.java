@@ -683,6 +683,7 @@ public class UserDAOTest {
     // alter table `user` change column id id bigint(20) auto_increment;
     // 当系统设置全局主键策略，局部主键策略就不需要设置了；但是全局策略和局部策略都设置了，局部策略优于全局策略
     // 选用什么样的主键策略呢？由系统需求而定
+
     /**
      * AUTO
      */
@@ -730,5 +731,14 @@ public class UserDAOTest {
         boolean result = u.insert();
         System.out.println("插入是否成功：" + (result == true ? "是" : "否"));
         System.out.println("userId=" + u.getId());
+    }
+
+    /**
+     * ID_WORKER, ID_WORKER_STR
+     */
+    @Test
+    public void getUserByUserId() {
+        User user = userDAO.getUserByUserName();
+        System.out.println(user != null);
     }
 }

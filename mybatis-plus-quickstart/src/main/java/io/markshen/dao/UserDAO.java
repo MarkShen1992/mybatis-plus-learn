@@ -20,4 +20,7 @@ public interface UserDAO extends BaseMapper<User> {
     IPage<User> selectUserPage(Page<User> user, @Param(Constants.WRAPPER) Wrapper<User> wrapper);
 
     User getUserByUser(@Param("user") User user);
+
+    User getUserByUserName();
+
 }
